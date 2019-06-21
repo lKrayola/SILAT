@@ -15,6 +15,9 @@ contract silat
         string name;
         address bidder_address;
         uint256 score;
+        uint256 unit_price;
+        uint256 units;
+        bool valid;
     }
 
     enum StatusType {Open_Registration, JuryEvaluation, JuryConfirmation, Bid_Execution, Bid_End}
@@ -60,7 +63,7 @@ contract silat
     }
 
     //Funcion que le agrega un competidor (bidder) a una licitacion (bid) en especifico
-    function addBidder(uint256 _id_bid, string _name) public returns(string)
+    function addBidder(uint256 _id_bid, string _name, uint256 _unit_price, uint256 _units) public returns(string)
     {
         require(bids[_id_bid].status == StatusType.Open_Registration, "La etapa de registro ya acabo, competidor no agregado");
         require(_id_bid >= 0 && _id_bid <= bid_count, "Error, id de licitacion no valido");
@@ -68,6 +71,9 @@ contract silat
         bids[_id_bid].bidders[bids[_id_bid].bidders_count].id_bidder = bids[_id_bid].bidders_count;
         bids[_id_bid].bidders[bids[_id_bid].bidders_count].name = _name;
         bids[_id_bid].bidders[bids[_id_bid].bidders_count].bidder_address = msg.sender;
+        bids[_id_bid].bidders[bids[_id_bid].bidders_count].unit_price = _unit_price;
+        bids[_id_bid].bidders[bids[_id_bid].bidders_count].units = _units;
+        bids[_id_bid].bidders[bids[_id_bid].bidders_count].valid = true;
 
         bids[_id_bid].bidders_count++;
 
@@ -81,6 +87,13 @@ contract silat
         require(bid_count>0, "Error, aun no existen licitaciones que modificar");
         require(_id_bid >= 0 && _id_bid <= bid_count, "Error, id de licitacion no valido");
         require(bids[_id_bid].status == StatusType.Open_Registration, "Error, periodo de registro yaterminado");
+        for(uint256 i = 0; i<bids[_id_bid].bidders_count;i++)
+        {
+            if (bids[_id_bid].bidders[i].unit_price * bids[_id_bid].bidders[i].units > bids[_id_bid].budget)
+            {
+                bids[_id_bid].bidders[i].valid = false;
+            }
+        }
 
         bids[_id_bid].status = StatusType.JuryEvaluation;
         return("Periodo de registro de licitacion terminado");
@@ -92,6 +105,7 @@ contract silat
         require(_id_bidder >= 0 && _id_bidder <= bids[_id_bid].bidders_count, "Error, id de licitacion no valido");
         require(_score >= 0 && _score <= 100, "Error, Puntuacion no valida");
         require(bids[_id_bid].status == StatusType.JuryEvaluation, "Error, aun en periodo de registro");
+        require(bids[_id_bid].bidders[_id_bidder].valid == true,"Error, Participante no valido");
 
         bids[_id_bid].bidders[_id_bidder].score = bids[_id_bid].bidders[_id_bidder].score + _score;
 
