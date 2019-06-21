@@ -48,6 +48,9 @@ contract silat
     function addBid(uint256 _budget, string _details, uint256 _no_partida) public returns(string)
     {
         require(msg.sender == admin, "Error, solo los administradores pueden agregar licitaciones");
+        require(_budget != 0,"Error, presupuesto no puede estar en blanco");
+        //require(_details != 0,"Error, detalle no puede estar en blanco");
+        require(_no_partida != 0,"Error, numero de partida no puede estar en blanco");
 
         bids[bid_count].id_bid = bid_count;
         bids[bid_count].budget = _budget;
@@ -67,6 +70,9 @@ contract silat
     {
         require(bids[_id_bid].status == StatusType.Open_Registration, "La etapa de registro ya acabo, competidor no agregado");
         require(_id_bid >= 0 && _id_bid <= bid_count, "Error, id de licitacion no valido");
+        //require(_name != 0,"Error, nombre no puede estar en blanco");
+        require(_unit_price != 0,"Error, Precio unitario no puede estar en blanco");
+        require(_units != 0,"Error, unidades no puede estar en blanco");
 
         bids[_id_bid].bidders[bids[_id_bid].bidders_count].id_bidder = bids[_id_bid].bidders_count;
         bids[_id_bid].bidders[bids[_id_bid].bidders_count].name = _name;
@@ -86,7 +92,8 @@ contract silat
         require(msg.sender == admin, "Solo el administrador puede terminar el periodo de registro");
         require(bid_count>0, "Error, aun no existen licitaciones que modificar");
         require(_id_bid >= 0 && _id_bid <= bid_count, "Error, id de licitacion no valido");
-        require(bids[_id_bid].status == StatusType.Open_Registration, "Error, periodo de registro yaterminado");
+        require(bids[_id_bid].status == StatusType.Open_Registration, "Error, periodo de registro ya terminado");
+
         for(uint256 i = 0; i<bids[_id_bid].bidders_count;i++)
         {
             if (bids[_id_bid].bidders[i].unit_price * bids[_id_bid].bidders[i].units > bids[_id_bid].budget)
