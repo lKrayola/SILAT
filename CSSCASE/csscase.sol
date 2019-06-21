@@ -90,7 +90,7 @@ contract silat
     {
         require(_id_bid >= 0 && _id_bid <= bid_count, "Error, id de licitacion no valido");
         require(_id_bidder >= 0 && _id_bidder <= bids[_id_bid].bidders_count, "Error, id de licitacion no valido");
-        require(_score >= 0 && _score <= 100, "Error, id de licitacion no valido");
+        require(_score >= 0 && _score <= 100, "Error, Puntuacion no valida");
         require(bids[_id_bid].status == StatusType.JuryEvaluation, "Error, aun en periodo de registro");
 
         bids[_id_bid].bidders[_id_bidder].score = bids[_id_bid].bidders[_id_bidder].score + _score;
